@@ -18,8 +18,8 @@ echo ========================================================
 echo.
 echo    [1] HARD RESET (Apagar TUDO: Libs, Atalhos, Wrappers)
 echo    [2] SOFT RESET (Atualizar/Limpar apenas Atalhos)
-echo    [3] INSTALAR / REPARAR (Verificar ambiente e criar atalhos)
-echo    [4] TESTE DE SISTEMA (Rodar suite de testes automatizada)
+echo    [3] INSTALAR / REPARAR (Verificar ambiente e libs)
+echo    [4] TESTE DE SISTEMA (Rodar suite de testes)
 echo.
 echo ========================================================
 set /p "OPCAO=Escolha uma opcao (1-4): "
@@ -41,16 +41,19 @@ cls
 echo [!] INICIANDO HARD RESET...
 echo.
 
-:: 1. Remove Libs
+:: 1. Remove Libs (Logica linear para evitar erro com parenteses em x86)
 call :LocalizarPythonSilencioso
-if defined PYTHON_REAL (
-    echo [1/3] Removendo biblioteca pypdf...
-    "%PYTHON_REAL%" -m pip uninstall -y pypdf >nul 2>&1
-    echo        [OK] Bibliotecas limpas.
-) else (
-    echo [1/3] Python nao encontrado, pulando remocao de lib.
-)
+if not defined PYTHON_REAL goto :SKIP_LIB_UNINSTALL
 
+echo [1/3] Removendo bibliotecas (pypdf, pikepdf, pymupdf)...
+"%PYTHON_REAL%" -m pip uninstall -y pypdf pikepdf pymupdf >nul 2>&1
+echo        [OK] Bibliotecas limpas.
+goto :END_LIB_CHECK
+
+:SKIP_LIB_UNINSTALL
+echo [1/3] Python nao encontrado, pulando remocao de lib.
+
+:END_LIB_CHECK
 :: 2. Remove Atalhos
 echo [2/3] Excluindo atalhos antigos...
 del /f /q "%SENDTO_DIR%\*Fatiar*.lnk" >nul 2>&1
@@ -122,9 +125,9 @@ echo        [STATUS] Versao detectada: %PY_VER%
 
 :: --- CHECK 2: BIBLIOTECAS ---
 echo.
-echo [2/5] Verificando dependencia (pikepdf e pypdf)...
-"%PYTHON_REAL%" -m pip install pikepdf pypdf >nul 2>&1
-echo        [OK] Bibliotecas (pikepdf/pypdf) garantidas.
+echo [2/5] Verificando dependencias (pikepdf, pypdf, pymupdf)...
+"%PYTHON_REAL%" -m pip install pikepdf pypdf pymupdf >nul 2>&1
+echo        [OK] Bibliotecas instaladas/atualizadas.
 
 :: --- CHECK 3: ARQUIVOS FONTE (.py) ---
 echo.
@@ -142,7 +145,6 @@ if "%FALTANDO%"=="0" (
 )
 
 :: --- CHECK 4: WRAPPERS (.bat locais) ---
-:: AQUI ESTAVA O PROBLEMA: REMOVI O "ECHO PAUSE" E COLOQUEI "ECHO EXIT"
 echo.
 echo [4/5] Gerando Executaveis Ocultos (Modo Rapido)...
 (
@@ -206,15 +208,18 @@ if not defined PYTHON_REAL (
 echo.
 echo [!] RODANDO TESTES...
 echo -------------------------------------------------------
-
-"%PYTHON_REAL%" "%SCRIPT_DIR%\teste_sistema.py"
-
-if %errorlevel% NEQ 0 (
-    echo.
-    echo [FALHA] O teste encontrou erros. Verifique o log acima.
+:: Verifica se o arquivo de teste existe antes de rodar
+if exist "%SCRIPT_DIR%\teste_sistema.py" (
+    "%PYTHON_REAL%" "%SCRIPT_DIR%\teste_sistema.py"
+    if !errorlevel! NEQ 0 (
+        echo.
+        echo [FALHA] O teste encontrou erros. Verifique o log acima.
+    ) else (
+        echo.
+        echo [SUCESSO] Todos os sistemas operacionais.
+    )
 ) else (
-    echo.
-    echo [SUCESSO] Todos os sistemas operacionais.
+    echo [ERRO] Arquivo 'teste_sistema.py' nao encontrado.
 )
 
 echo -------------------------------------------------------

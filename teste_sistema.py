@@ -60,7 +60,6 @@ def teste_fatiar():
     cmd = [sys.executable, "dividir.py", alvo]
     proc = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='ignore', env=ENV_UTF8)
     
-    # O dividir.py padrão ainda cria pasta (mantivemos essa lógica lá)
     pasta_esperada = os.path.join(DIR_TESTE, "teste2_fatiado")
     
     if os.path.exists(pasta_esperada):
@@ -103,11 +102,6 @@ def teste_smart():
     
     cmd = [sys.executable, "dividir_smart.py", alvo]
     proc = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='ignore', env=ENV_UTF8)
-    
-    # --- LÓGICA ATUALIZADA (FLAT) ---
-    # Como não cria mais pasta, verificamos se os arquivos paginados foram criados na raiz
-    # O teste2.pdf não tem valor monetário detectável, então o fallback é:
-    # [NomeOriginal]_Pag[XX].pdf
     
     arquivo_esperado_1 = os.path.join(DIR_TESTE, "teste2_Pag01.pdf")
     arquivo_esperado_2 = os.path.join(DIR_TESTE, "teste2_Pag02.pdf")
