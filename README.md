@@ -1,16 +1,16 @@
-📂 PyDF Toolkit - Windows PDF Automation
+PyDF Toolkit - Windows PDF Automation
 
 Uma suíte de ferramentas leve, local e automatizada para manipulação de PDFs, integrada diretamente ao Menu de Contexto do Windows.
 
-🎯 Sobre o Projeto
+Sobre o Projeto
 
 O PyDF Toolkit foi desenvolvido para resolver a ineficiência de manipular documentos PDF no dia a dia corporativo. Ao invés de depender de softwares pesados (Adobe) ou ferramentas online inseguras (iLovePDF), este projeto oferece uma solução nativa, rápida e privada.
 
 O diferencial é a integração via Shell (Batch Scripting), permitindo que o usuário execute scripts Python complexos simplesmente clicando com o botão direito no arquivo ("Enviar Para").
 
-✨ Funcionalidades
+Funcionalidades
 
-1. ✂️ Fatiar (Split)
+1. Fatiar (Split)
 
 Divide um arquivo PDF em páginas individuais instantaneamente.
 
@@ -18,7 +18,7 @@ Criação automática de pastas organizadas.
 
 Nomenclatura sequencial.
 
-2. 🧠 Fatiar Inteligente (Smart Split)
+2. Fatiar Inteligente (Smart Split)
 
 Utiliza Regex e Extração de Texto para ler o conteúdo de cada página antes de salvar.
 
@@ -26,17 +26,17 @@ Ideal para separar comprovantes ou notas fiscais.
 
 Lógica: Se encontrar um valor monetário (ex: "1.500,00"), renomeia o arquivo com o valor. Se não, usa um contador padrão.
 
-3. 🔗 Juntar (Merge)
+3. Juntar (Merge)
 
 Unifica todos os PDFs de uma pasta em um único arquivo Unificados.pdf.
 
-4. 🏷️ Renomeação Automática (OCR Logic)
+4. Renomeação Automática (OCR Logic)
 
 Analisa o texto de boletos ou comprovantes PIX para identificar o tipo de documento e renomeá-lo automaticamente.
 
 Detecta padrões: PIX, BOLETO, DARF.
 
-🛠️ Arquitetura e Tecnologias
+Arquitetura e Tecnologias
 
 O projeto utiliza uma arquitetura híbrida para garantir a melhor UX no Windows:
 
@@ -54,7 +54,7 @@ graph LR
     C -->|Retorna| F[Log Colorido no Terminal]
 
 
-🚀 Instalação e Uso
+Instalação e Uso
 
 O projeto conta com um Instalador CLI Interativo.
 
@@ -80,7 +80,7 @@ Vá em Enviar Para > 01 - DIVIDIR (PyDF) (ou outra opção).
 
 O script rodará e fechará automaticamente após o sucesso.
 
-🧪 Testes Automatizados
+Testes Automatizados
 
 Qualidade de código é prioridade. O projeto inclui um sistema de auto-diagnóstico (teste_sistema.py) que:
 
@@ -94,7 +94,7 @@ Limpa o ambiente após o teste.
 
 Para rodar os testes, execute o instalador e escolha a opção [4] TESTE DE SISTEMA.
 
-📂 Estrutura do Projeto
+Estrutura do Projeto
 
 /
 ├── dividir.py          # Lógica de Split
@@ -107,9 +107,9 @@ Para rodar os testes, execute o instalador e escolha a opção [4] TESTE DE SIST
 └── Instalador_PyDF.bat # Gerenciador de Instalação (CLI)
 
 
-📄 Licença
+Licença
 
 Este projeto está sob a licença MIT - sinta-se livre para usar e modificar.
 
-Desenvolvido por Pedro Tavares 🚀
+Desenvolvido por Pedro Tavares
 Estudante de Ciência da Computação & Desenvolvedor Full Cycle em formação.
