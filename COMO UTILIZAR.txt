@@ -1,0 +1,38 @@
+Rode o Instalador_PyDF e aperte o número 3 do teclado espere fazer a instalação.
+
+Clique com o botão direito em cima do arquivo pdf. 
+Vá em Enviar para
+E selecione na opção a ferramenta que quer utilizar
+
+Fatiar: quebra um arquivo com várias paginas em vários arquivos.
+
+Juntar: junta vários arquivos pdf em um.
+
+Fatiar smart: quebra um arquivo pdf com vários, mas renomeia todos pelo valor do comprovante.
+
+Renomear Avançado : renomeia um ou mais arquivos pelo que você escolher no menu que abrirá:
+
+			--- Comprovante ---
+		1. [Favorecido]_[Valor].pdf;
+		2. [Tipo]_[Valor].pdf;
+		3. [Valor]_[Favorecido].pdf;
+		4. [Conta]_[Valor].pdf;
+		5. [Tipo]_[Favorecido].pdf
+			--- Padrão Bancário ---;
+		6. [Tipo]_[Conta]_[Data].pdf;
+		7. [Conta]_[Tipo]_[Data].pdf
+			--- Padrão Híbrido ---
+		8. [DIGITAR]_[Conta]_[Data].pdf (Personalizado);
+		9. EXT+REN_[Conta]_[Data].pdf 
+
+
+----------------------------------------------------------------------------------------------
+(OPCIONAL - MENU DE BOTÃO DIREITO IGUAL WINDOWS 10)
+reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f
+reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f
+
+
+(VOLTAR PARA O DO WINDOWS 11)
+reg delete "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f
+
+

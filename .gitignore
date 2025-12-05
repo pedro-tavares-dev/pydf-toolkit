@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+test/
+teste/
+*.pdf
+!teste_sistema.py
+_run_*.bat
