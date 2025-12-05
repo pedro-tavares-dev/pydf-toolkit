@@ -5,13 +5,14 @@ import time
 import subprocess
 from pypdf import PdfWriter, PdfReader
 
+# Tenta importar o Motor para teste lógico
 try:
     from motor import MotorExtracao
     MOTOR_DISPONIVEL = True
 except ImportError:
     MOTOR_DISPONIVEL = False
 
-# Cores do Terminal
+# Cores para o Terminal
 VERDE = "\033[92m"
 VERMELHO = "\033[91m"
 AMARELO = "\033[93m"
@@ -19,7 +20,7 @@ RESET = "\033[0m"
 
 DIR_TESTE = os.path.join(os.getcwd(), "teste")
 
-# --- AMBIENTE UTF-8 ---
+# --- AMBIENTE UTF-8 (Vacina para Windows) ---
 ENV_UTF8 = os.environ.copy()
 ENV_UTF8["PYTHONUTF8"] = "1"
 
@@ -49,16 +50,17 @@ def setup_ambiente():
     
     log_info("Gerando PDFs de teste (Mock)...")
     criar_pdf_fake("teste1.pdf", 1, "Arquivo pagina unica")
-    criar_pdf_fake("teste2.pdf", 2, "Arquivo pagina dupla")
+    criar_pdf_fake("teste2.pdf", 2, "Arquivo pagina dupla") # Usado no Smart e no Fatiar
     criar_pdf_fake("teste_pix.pdf", 1, "PIX VALOR 100,00") 
 
 def teste_fatiar():
-    print(f"\n--- TESTE 1: FATIAR (dividir.py) ---")
+    print(f"\n--- TESTE 1: FATIAR PADRÃO (dividir.py) ---")
     alvo = os.path.join(DIR_TESTE, "teste2.pdf")
     
     cmd = [sys.executable, "dividir.py", alvo]
     proc = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='ignore', env=ENV_UTF8)
     
+    # O dividir.py padrão ainda cria pasta (mantivemos essa lógica lá)
     pasta_esperada = os.path.join(DIR_TESTE, "teste2_fatiado")
     
     if os.path.exists(pasta_esperada):
@@ -73,6 +75,7 @@ def teste_fatiar():
 
 def teste_juntar():
     print(f"\n--- TESTE 2: JUNTAR (juntar.py) ---")
+    # Usa a pasta criada pelo Teste 1
     pasta_alvo = os.path.join(DIR_TESTE, "teste2_fatiado")
     
     if not os.path.exists(pasta_alvo):
@@ -101,14 +104,20 @@ def teste_smart():
     cmd = [sys.executable, "dividir_smart.py", alvo]
     proc = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='ignore', env=ENV_UTF8)
     
-    pasta_esperada = os.path.join(DIR_TESTE, "teste2_SMART")
+    # --- LÓGICA ATUALIZADA (FLAT) ---
+    # Como não cria mais pasta, verificamos se os arquivos paginados foram criados na raiz
+    # O teste2.pdf não tem valor monetário detectável, então o fallback é:
+    # [NomeOriginal]_Pag[XX].pdf
     
-    if os.path.exists(pasta_esperada):
-        log_pass("Pasta Smart criada com sucesso.")
+    arquivo_esperado_1 = os.path.join(DIR_TESTE, "teste2_Pag01.pdf")
+    arquivo_esperado_2 = os.path.join(DIR_TESTE, "teste2_Pag02.pdf")
+    
+    if os.path.exists(arquivo_esperado_1) and os.path.exists(arquivo_esperado_2):
+        log_pass("Smart Split executado com sucesso (Arquivos gerados na raiz).")
     else:
-        log_fail("Falha no Smart Split.")
-        print(f"Log: {proc.stderr}")
-        print(f"Out: {proc.stdout}")
+        log_fail("Falha no Smart Split (Arquivos não encontrados na raiz).")
+        print(f"Log de Erro: {proc.stderr}")
+        print(f"Output: {proc.stdout}")
 
 def teste_logica_renomear():
     print(f"\n--- TESTE 4: LOGICA DE RENOMEACAO (Motor + Regex) ---")
