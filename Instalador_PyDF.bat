@@ -1,8 +1,9 @@
 @echo off
 setlocal EnableDelayedExpansion
-title INSTALADOR PYDF - PEDRO TAVARES
-color 0A
+title GERENCIADOR MESTRE PYDF - V4 (NETWORK PRO)
+color 0B
 chcp 65001 >nul
+mode con: cols=120 lines=40
 
 :: --- DEFINICOES GLOBAIS ---
 cd /d "%~dp0"
@@ -10,261 +11,179 @@ set "SCRIPT_DIR=%~dp0"
 if "%SCRIPT_DIR:~-1%"=="\" set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 set "SENDTO_DIR=%APPDATA%\Microsoft\Windows\SendTo"
 
-:MENU
+:MENU_PRINCIPAL
 cls
-echo ========================================================
-echo   INSTALADOR E GERENCIADOR PYDF - POR PEDRO TAVARES
-echo ========================================================
+echo ==============================================================================
+echo   GERENCIADOR MESTRE PYDF - V4 (COMPATIVEL COM REDE MULTI-USUARIO)
+echo ==============================================================================
 echo.
-echo    [1] HARD RESET (Apagar TUDO: Libs, Atalhos, Wrappers)
-echo    [2] SOFT RESET (Atualizar/Limpar apenas Atalhos)
-echo    [3] INSTALAR / REPARAR (Verificar ambiente e libs)
-echo    [4] TESTE DE SISTEMA (Rodar suite de testes)
+echo   [1] INSTALAR / ATUALIZAR (Gera executaveis que funcionam em qualquer PC)
+echo   [2] FERRAMENTAS DE DEBUG
+echo   [3] RESET
+echo   [4] TESTE DE SISTEMA
 echo.
-echo ========================================================
-set /p "OPCAO=Escolha uma opcao (1-4): "
+echo ==============================================================================
+set /p "OPCAO=Escolha uma opcao: "
 
-if "%OPCAO%"=="1" goto OPCAO_RESET_TOTAL
-if "%OPCAO%"=="2" goto OPCAO_RESET_SOFT
-if "%OPCAO%"=="3" goto OPCAO_DIAGNOSTICO
-if "%OPCAO%"=="4" goto OPCAO_TESTES
+if "%OPCAO%"=="1" goto INSTALACAO_COMPLETA
+if "%OPCAO%"=="2" goto MENU_DEBUG
+if "%OPCAO%"=="3" goto MENU_RESET
+if "%OPCAO%"=="4" goto RODAR_TESTES
 
-echo Opcao invalida.
-timeout /t 2 >nul
-goto MENU
+goto MENU_PRINCIPAL
 
-:: ========================================================
-::                OPCAO 1: HARD RESET
-:: ========================================================
-:OPCAO_RESET_TOTAL
+:: ==============================================================================
+:: [1] INSTALACAO BLINDADA
+:: ==============================================================================
+:INSTALACAO_COMPLETA
 cls
-echo [!] INICIANDO HARD RESET...
+echo [STATUS] Iniciando Instalacao Hibrida...
 echo.
 
-:: 1. Remove Libs (Logica linear para evitar erro com parenteses em x86)
-call :LocalizarPythonSilencioso
-if not defined PYTHON_REAL goto :SKIP_LIB_UNINSTALL
-
-echo [1/3] Removendo bibliotecas (pypdf, pikepdf, pymupdf)...
-"%PYTHON_REAL%" -m pip uninstall -y pypdf pikepdf pymupdf >nul 2>&1
-echo        [OK] Bibliotecas limpas.
-goto :END_LIB_CHECK
-
-:SKIP_LIB_UNINSTALL
-echo [1/3] Python nao encontrado, pulando remocao de lib.
-
-:END_LIB_CHECK
-:: 2. Remove Atalhos
-echo [2/3] Excluindo atalhos antigos...
-del /f /q "%SENDTO_DIR%\*Fatiar*.lnk" >nul 2>&1
-del /f /q "%SENDTO_DIR%\*Juntar*.lnk" >nul 2>&1
-del /f /q "%SENDTO_DIR%\*Smart*.lnk" >nul 2>&1
-del /f /q "%SENDTO_DIR%\*Renomear*.lnk" >nul 2>&1
-echo        [OK] Atalhos removidos.
-
-:: 3. Remove Wrappers
-echo [3/3] Limpando arquivos temporarios (.bat)...
-del /f /q "%SCRIPT_DIR%\_run_*.bat" >nul 2>&1
-echo        [OK] Wrappers deletados.
-
-echo.
-echo ========================================================
-echo        HARD RESET CONCLUIDO.
-echo ========================================================
-pause
-goto MENU
-
-:: ========================================================
-::                OPCAO 2: SOFT RESET
-:: ========================================================
-:OPCAO_RESET_SOFT
-cls
-echo [!] INICIANDO SOFT RESET (Foco em Atalhos)...
-echo.
-
-:: 1. Apenas limpa os atalhos para recriar depois limpo
-echo [1/2] Removendo atalhos do menu de contexto...
-del /f /q "%SENDTO_DIR%\*Fatiar*.lnk" >nul 2>&1
-del /f /q "%SENDTO_DIR%\*Juntar*.lnk" >nul 2>&1
-del /f /q "%SENDTO_DIR%\*Smart*.lnk" >nul 2>&1
-del /f /q "%SENDTO_DIR%\*Renomear*.lnk" >nul 2>&1
-echo        [OK] Atalhos antigos removidos.
-
-:: 2. Remove wrappers antigos para garantir versoes novas
-echo [2/2] Atualizando scripts de lancamento...
-del /f /q "%SCRIPT_DIR%\_run_*.bat" >nul 2>&1
-echo        [OK] Limpeza concluida.
-
-echo.
-echo ========================================================
-echo        SOFT RESET CONCLUIDO.
-echo ========================================================
-echo Dica: Agora use a Opcao 3 para reinstalar os atalhos.
-pause
-goto MENU
-
-:: ========================================================
-::            OPCAO 3: INSTALAR / REPARAR
-:: ========================================================
-:OPCAO_DIAGNOSTICO
-cls
-echo [?] INICIANDO DIAGNOSTICO E INSTALACAO...
-echo.
-
-:: --- CHECK 1: PYTHON ---
-echo [1/5] Verificando Motor Python...
-call :LocalizarPythonVerbose
-if not defined PYTHON_REAL (
-    echo [ERRO] Python nao encontrado.
-    echo Buscando instalador automatico...
-    call :InstalarPython
-)
-:: Verifica versão
-for /f "tokens=*" %%v in ('"%PYTHON_REAL%" --version') do set "PY_VER=%%v"
-echo        [STATUS] Versao detectada: %PY_VER%
-
-:: --- CHECK 2: BIBLIOTECAS ---
-echo.
-echo [2/5] Verificando dependencias (pikepdf, pypdf, pymupdf)...
-"%PYTHON_REAL%" -m pip install pikepdf pypdf pymupdf >nul 2>&1
-echo        [OK] Bibliotecas instaladas/atualizadas.
-
-:: --- CHECK 3: ARQUIVOS FONTE (.py) ---
-echo.
-echo [3/5] Validando integridade dos scripts...
-set "FALTANDO=0"
-if not exist "%SCRIPT_DIR%\dividir.py" (echo [X] Faltando dividir.py & set FALTANDO=1)
-if not exist "%SCRIPT_DIR%\juntar.py" (echo [X] Faltando juntar.py & set FALTANDO=1)
-if not exist "%SCRIPT_DIR%\dividir_smart.py" (echo [X] Faltando dividir_smart.py & set FALTANDO=1)
-if not exist "%SCRIPT_DIR%\renomear.py" (echo [X] Faltando renomear.py & set FALTANDO=1)
-
-if "%FALTANDO%"=="0" (
-    echo        [OK] Scripts base encontrados.
+:: 1. Verificacao de Dependencias (Apenas visual, o wrapper vai decidir na hora)
+if exist "%SCRIPT_DIR%\python_mini\python.exe" (
+    echo [OK] Pasta 'python_mini' detectada (Modo Portatil Ativo).
+    "%SCRIPT_DIR%\python_mini\python.exe" -m pip install --upgrade pikepdf pypdf pymupdf >nul 2>&1
 ) else (
-    echo        [ALERTA] Arquivos faltando! O programa pode falhar.
+    echo [INFO] Pasta 'python_mini' nao encontrada. Usaremos o Python do Sistema.
+    python -m pip install --upgrade pikepdf pypdf pymupdf >nul 2>&1
 )
 
-:: --- CHECK 4: WRAPPERS (.bat locais) ---
+:: 2. Gera Wrappers DINAMICOS (O segredo esta aqui)
 echo.
-echo [4/5] Gerando Executaveis Ocultos (Modo Rapido)...
-(
-echo @echo off
-echo "%PYTHON_REAL%" "%%~dp0dividir.py" %%*
-echo exit
-) > "_run_fatiar.bat"
+echo [STATUS] Criando executaveis universais...
 
-(
-echo @echo off
-echo "%PYTHON_REAL%" "%%~dp0juntar.py" %%*
-echo exit
-) > "_run_juntar.bat"
+call :GerarWrapperDinamico "_run_fatiar.bat" "dividir.py"
+call :GerarWrapperDinamico "_run_juntar.bat" "juntar.py"
+call :GerarWrapperDinamico "_run_juntar_turbo.bat" "juntar_turbo.py"
+call :GerarWrapperDinamico "_run_smart.bat" "dividir_smart.py"
+call :GerarWrapperDinamico "_run_renomear.bat" "renomear.py"
 
-(
-echo @echo off
-echo "%PYTHON_REAL%" "%%~dp0dividir_smart.py" %%*
-echo exit
-) > "_run_smart.bat"
+echo [OK] Wrappers gerados.
 
-(
-echo @echo off
-echo "%PYTHON_REAL%" "%%~dp0renomear.py" %%*
-echo exit
-) > "_run_renomear.bat"
-echo        [OK] Wrappers gerados.
-
-:: --- CHECK 5: ATALHOS DE CONTEXTO ---
+:: 3. Cria Atalhos Locais (Isso cada usuario precisa fazer 1 vez)
 echo.
-echo [5/5] Criando Atalhos no Menu de Contexto...
-call :CriarAtalho "01 - DIVIDIR (PyDF).lnk" "_run_fatiar.bat"
-call :CriarAtalho "02 - JUNTAR (PyDF).lnk" "_run_juntar.bat"
-call :CriarAtalho "03 - DIVIDIR SMART (PyDF).lnk" "_run_smart.bat"
-call :CriarAtalho "04 - RENOMEAR (PyDF).lnk" "_run_renomear.bat"
-echo        [OK] Atalhos instalados com sucesso!
+echo [STATUS] Criando atalhos no SEU computador...
+:: Para o atalho, precisamos apontar para um executavel. 
+:: Usamos o CMD.exe para chamar o .bat, assim o atalho fica generico.
+call :CriarAtalhoGenerico "DIVIDIR (PyDF).lnk" "_run_fatiar.bat"
+call :CriarAtalhoGenerico "JUNTAR (PyDF).lnk" "_run_juntar.bat"
+call :CriarAtalhoGenerico "JUNTAR TURBO (PyDF).lnk" "_run_juntar_turbo.bat"
+call :CriarAtalhoGenerico "DIVIDIR SMART (PyDF).lnk" "_run_smart.bat"
+call :CriarAtalhoGenerico "RENOMEAR (PyDF).lnk" "_run_renomear.bat"
+
+echo [OK] Atalhos criados!
 
 echo.
-echo ========================================================
-echo        INSTALACAO CONCLUIDA!
-echo ========================================================
-echo Agora voce pode clicar com o botao direito em qualquer PDF
-echo e usar a opcao "Enviar Para".
-echo.
+echo ==============================================================================
+echo   INSTALACAO UNIVERSAL CONCLUIDA!
+echo   Agora os scripts funcionam tanto no seu PC quanto na rede.
+echo ==============================================================================
 pause
-goto MENU
+goto MENU_PRINCIPAL
 
-:: ========================================================
-::                OPCAO 4: TESTE DE SISTEMA
-:: ========================================================
-:OPCAO_TESTES
+:: ==============================================================================
+:: [2] MENU DEBUG
+:: ==============================================================================
+:MENU_DEBUG
 cls
-echo [DEBUG] Iniciando ambiente de teste...
+echo [A] SIMULADOR "SEND TO"
+echo [B] LIMPAR CACHE
+echo [V] VOLTAR
+set /p "DEBUG_OPT=Escolha: "
 
-call :LocalizarPythonVerbose
-if not defined PYTHON_REAL (
-    echo [ERRO FATAL] Python nao detectado para teste.
-    pause
-    goto MENU
+if /i "%DEBUG_OPT%"=="A" goto SIMULADOR
+if /i "%DEBUG_OPT%"=="B" goto LIMPAR_CACHE
+if /i "%DEBUG_OPT%"=="V" goto MENU_PRINCIPAL
+goto MENU_DEBUG
+
+:SIMULADOR
+cls
+echo Arraste o PDF para testar o wrapper dinamico:
+set /p "SCRIPT_TESTE=Nome do script (ex: renomear.py): "
+set /p "ARQUIVO_TESTE=Arquivo PDF: "
+set "ARQUIVO_TESTE=%ARQUIVO_TESTE:"=%"
+cls
+if exist "%SCRIPT_DIR%\python_mini\python.exe" (
+    "%SCRIPT_DIR%\python_mini\python.exe" "%SCRIPT_TESTE%" "%ARQUIVO_TESTE%"
+) else (
+    python "%SCRIPT_TESTE%" "%ARQUIVO_TESTE%"
 )
+pause
+goto MENU_DEBUG
 
-echo.
-echo [!] RODANDO TESTES...
-echo -------------------------------------------------------
-:: Verifica se o arquivo de teste existe antes de rodar
-if exist "%SCRIPT_DIR%\teste_sistema.py" (
-    "%PYTHON_REAL%" "%SCRIPT_DIR%\teste_sistema.py"
-    if !errorlevel! NEQ 0 (
-        echo.
-        echo [FALHA] O teste encontrou erros. Verifique o log acima.
+:LIMPAR_CACHE
+for /d /r . %%d in (__pycache__) do @if exist "%%d" rd /s /q "%%d"
+echo [OK] Limpo.
+timeout /t 2 >nul
+goto MENU_DEBUG
+
+:: ==============================================================================
+:: [3] RESET
+:: ==============================================================================
+:MENU_RESET
+del /f /q "%SENDTO_DIR%\*PyDF*.lnk" >nul 2>&1
+del /f /q "%SCRIPT_DIR%\_run_*.bat" >nul 2>&1
+echo [OK] Resetado.
+pause
+goto MENU_PRINCIPAL
+
+:: ==============================================================================
+:: [4] TESTES
+:: ==============================================================================
+:RODAR_TESTES
+cls
+if exist "teste_sistema.py" (
+    if exist "%SCRIPT_DIR%\python_mini\python.exe" (
+        "%SCRIPT_DIR%\python_mini\python.exe" "teste_sistema.py"
     ) else (
-        echo.
-        echo [SUCESSO] Todos os sistemas operacionais.
+        python "teste_sistema.py"
     )
 ) else (
-    echo [ERRO] Arquivo 'teste_sistema.py' nao encontrado.
+    echo [ERRO] teste_sistema.py faltando.
 )
-
-echo -------------------------------------------------------
 pause
-goto MENU
+goto MENU_PRINCIPAL
 
 
-:: ========================================================
-::                FUNCOES AUXILIARES
-:: ========================================================
+:: ==============================================================================
+:: FUNCOES ESPECIAIS (A MAGICA ACONTECE AQUI)
+:: ==============================================================================
 
-:LocalizarPythonSilencioso
-set "PYTHON_REAL="
-for /f "tokens=*" %%i in ('where python 2^>nul') do (
-    echo "%%i" | find /i "WindowsApps" >nul
-    if errorlevel 1 if not defined PYTHON_REAL set "PYTHON_REAL=%%i"
-)
-if not defined PYTHON_REAL if exist "%LocalAppData%\Python\bin\python.exe" set "PYTHON_REAL=%LocalAppData%\Python\bin\python.exe"
-if not defined PYTHON_REAL for /d %%D in ("%LocalAppData%\Programs\Python\Python3*") do if exist "%%D\python.exe" set "PYTHON_REAL=%%D\python.exe"
-if not defined PYTHON_REAL for /d %%D in ("%ProgramFiles%\Python3*") do if exist "%%D\python.exe" set "PYTHON_REAL=%%D\python.exe"
+:GerarWrapperDinamico
+set "NOME_BAT=%~1"
+set "SCRIPT_PY=%~2"
+
+(
+echo @echo off
+echo chcp 65001 ^>nul
+echo pushd "%%~dp0"
+echo.
+echo :: --- DETECCAO AUTOMATICA DE MOTOR ---
+echo if exist "%%~dp0python_mini\python.exe" ^(
+echo     set "MOTOR=%%~dp0python_mini\python.exe"
+echo ^) else ^(
+echo     set "MOTOR=python"
+echo ^)
+echo.
+echo :: --- EXECUCAO ---
+echo "%%MOTOR%%" "%%~dp0%SCRIPT_PY%" %%*
+echo.
+echo if %%errorlevel%% NEQ 0 ^(
+echo     echo [ERRO] O script falhou ou o Python nao foi encontrado.
+echo     pause
+echo ^)
+echo popd
+) > "%NOME_BAT%"
 goto :eof
 
-:LocalizarPythonVerbose
-call :LocalizarPythonSilencioso
-if defined PYTHON_REAL echo        [OK] Motor: "%PYTHON_REAL%"
-goto :eof
-
-:InstalarPython
-echo        [AVISO] Tentando instalador local...
-if exist "python-*.exe" (
-    for %%f in ("python-*.exe") do set "INSTALLER=%%f"
-    "!INSTALLER!" /quiet PrependPath=1 Include_test=0
-    timeout /t 10 >nul
-    call :LocalizarPythonSilencioso
-) else (
-    echo        [ERRO] Instalador nao encontrado. Instale o Python manualmente.
-    pause
-    exit /b
-)
-goto :eof
-
-:CriarAtalho
+:CriarAtalhoGenerico
 set "NOME_LNK=%~1"
 set "NOME_BAT=%~2"
 set "DESTINO_LNK=%SENDTO_DIR%\%NOME_LNK%"
 set "CAMINHO_BAT=%SCRIPT_DIR%\%NOME_BAT%"
-powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%DESTINO_LNK%'); $s.TargetPath = '%CAMINHO_BAT%'; $s.IconLocation = '%PYTHON_REAL%,0'; $s.WorkingDirectory = '%SCRIPT_DIR%'; $s.Save()"
+
+:: Aqui usamos o cmd.exe /c para executar o .bat. 
+:: Isso garante que o atalho funcione mesmo se o drive de rede mudar a letra.
+powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%DESTINO_LNK%'); $s.TargetPath = 'cmd.exe'; $s.Arguments = '/c \"\"%CAMINHO_BAT%\"\"'; $s.IconLocation = 'shell32.dll,265'; $s.Save()"
 goto :eof

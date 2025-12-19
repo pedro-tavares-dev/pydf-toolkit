@@ -1,7 +1,6 @@
 import sys
 import os
 import time
-import re
 from pypdf import PdfReader
 from motor import MotorExtracao
 from biblioteca_logs import configurar_logger
@@ -36,17 +35,22 @@ def main():
 
     limpar_tela()
     print(f"=== 🏷️  RENOMEAR ({len(arquivos)} ARQUIVOS) ===")
-    print("1 - Favorecido_Valor")
-    print("2 - Tipo_Valor")
-    print("3 - Valor_Tipo")  # <--- NOVA OPÇÃO
-    print("6 - Tipo_Conta_Data (Extratos)")
-    print("7 - Conta_Tipo_Data (Investimentos)")
-    print("9 - EXT+REN_Conta_Data (Automático)")
+    print("-----------------------------------------")
+    print("1 - Favorecido_Valor   (Ex: AMAZON_150,00)")
+    print("2 - Valor_Favorecido   (Ex: 150,00_AMAZON)")
+    print("3 - Tipo_Valor         (Ex: PIX_150,00)")
+    print("4 - Valor_Tipo         (Ex: 150,00_PIX)")
+    print("5 - Tipo_Conta_Data    (Ex: EXTRATO_12345_2025...)")
+    print("6 - Conta_Tipo_Data    (Ex: 12345_EXTRATO_2025...)")
+    print("7 - Apenas Valor       (Ex: 150,00)")
+    print("8 - Automático EXT+REN (Ex: EXT+REN_12345_2025...)")
+    print("-----------------------------------------")
     print("0 - Sair")
     
     opt = input("Opção >> ")
     
-    if opt in ['1', '2', '3', '6', '7', '9']:
+    # Aceita de 1 a 8
+    if opt in ['1', '2', '3', '4', '5', '6', '7', '8']:
         processar(arquivos, opt)
 
 def processar(arquivos, opcao):
@@ -76,40 +80,42 @@ def processar(arquivos, opcao):
             conta = motor.get_conta()
             data = motor.get_data()
             
-            # --- TRATAMENTO DO VALOR (Retirar pontos de milhar) ---
+            # --- TRATAMENTO DO VALOR ---
             raw_val = motor.get_valor() # Ex: 1.500,00
             val = raw_val.replace('.', '') if raw_val else "0,00" # Ex: 1500,00
-            # ------------------------------------------------------
+            # ---------------------------
 
             # Log de auditoria
-            log.info(f"Analisando '{nome_original}': Tipo={tipo}, Conta={conta}, Data={data}, Valor={raw_val} -> {val}")
+            log.info(f"Analisando '{nome_original}': Tipo={tipo}, Val={val}, Fav={fav}")
 
             novo = ""
             
-            # Lógica de Montagem do Nome
+            # === Lógica de Montagem Atualizada ===
             if opcao == '1': 
                 novo = f"{fav}_{val}"
             elif opcao == '2': 
-                novo = f"{tipo}_{val}"
+                novo = f"{val}_{fav}"
             elif opcao == '3':
+                novo = f"{tipo}_{val}"
+            elif opcao == '4': 
                 novo = f"{val}_{tipo}"
-            elif opcao == '6': 
+            elif opcao == '5': 
                 novo = f"{tipo}_{conta}_{data}"
-            elif opcao == '7': 
+            elif opcao == '6': 
                 novo = f"{conta}_{tipo}_{data}"
-            elif opcao == '9': 
+            elif opcao == '7':
+                novo = f"{val}"
+            elif opcao == '8': # Opção devolvida!
                 novo = f"EXT+REN_{conta}_{data}"
 
             # Limpeza final do nome do arquivo
-            # Remove __ duplicados e troca espaços por _
             novo = novo.replace("__", "_").replace(" ", "_")
             
             caminho_novo = os.path.join(pasta, f"{novo}{ext}")
             
-            # Evita sobrescrever arquivos existentes (adiciona _1, _2...)
+            # Evita sobrescrever arquivos existentes
             c = 1
             while os.path.exists(caminho_novo):
-                # Se o arquivo for o mesmo (já renomeado), para.
                 if os.path.abspath(caminho_novo) == os.path.abspath(pdf_path):
                     break
                 caminho_novo = os.path.join(pasta, f"{novo}_{c}{ext}")
@@ -119,9 +125,8 @@ def processar(arquivos, opcao):
             if os.path.abspath(caminho_novo) != os.path.abspath(pdf_path):
                 os.rename(pdf_path, caminho_novo)
                 log.info(f" -> Renomeado para: {os.path.basename(caminho_novo)}")
-                print(f" > {os.path.basename(caminho_novo)}")
             else:
-                log.info(f" -> Arquivo ja estava com o nome correto ou ignorado.")
+                log.info(f" -> Ignorado (Nome ja esta correto).")
             
         except Exception as e:
             log.error(f"Erro ao processar {nome_original}: {e}")
