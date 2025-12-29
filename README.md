@@ -74,21 +74,25 @@ Opções: Organiza por Favorecido, Data (ISO), Valor e Tipo.
 
 🏗️ Arquitetura e Tecnologias
 
-O projeto utiliza uma arquitetura híbrida para garantir a melhor UX no Windows:
+O projeto utiliza uma arquitetura híbrida para garantir a melhor UX no Windows. O fluxo de dados conecta a interface nativa do Explorer diretamente ao Core Python através de Wrappers Batch.
 
-Core (Python): Scripts robustos usando pypdf para manipulação de bytes e re (Regex) para lógica de extração de dados.
+<p align="center">
+<img src="assets/arquitetura.png" alt="Diagrama de Arquitetura do Projeto" width="80%">
+</p>
 
-Wrapper (Batch): Scripts .bat que servem de "ponte", configurando o ambiente (UTF-8), chamando o interpretador Python correto e gerenciando pausas de execução.
+Core (Python): Scripts robustos usando pypdf para manipulação de bytes e re (Regex) para lógica de extração.
 
-Instalador (Automation): Um script de auto-diagnóstico que verifica dependências (pip install), cria os wrappers e injeta os atalhos na pasta SendTo do Windows.
+Wrapper (Batch): "Ponte" que configura o ambiente (UTF-8) e gerencia a execução.
 
-graph LR
-    A[Usuário (Menu Contexto)] -->|Clica em Enviar Para| B(Wrapper .BAT)
-    B -->|Configura UTF-8| C{Script Python}
-    C -->|Importa| D[pypdf Lib]
-    C -->|Processa| E[Arquivo PDF]
-    C -->|Retorna| F[Log Colorido no Terminal]
+Instalador: Script de auto-diagnóstico e injeção de atalhos.
 
+📂 Estrutura do Projeto
+
+A organização dos arquivos foi pensada para facilitar a manutenção, separando a lógica de negócio (Python) dos executáveis de sistema (Bat).
+
+<p align="center">
+<img src="assets/estrutura.png" alt="Árvore de Arquivos do Projeto" width="60%">
+</p>
 
 📦 Instalação e Uso
 
@@ -125,19 +129,6 @@ Valida se os arquivos de saída foram criados corretamente.
 Limpa o ambiente após o teste.
 
 Para rodar os testes, execute o instalador e escolha a opção [4] TESTE DE SISTEMA.
-
-📂 Estrutura do Projeto
-
-/
-├── dividir.py          # Lógica de Split
-├── dividir_smart.py    # Lógica de Split com leitura de conteúdo
-├── juntar.py           # Lógica de Merge
-├── renomear.py         # Lógica de Renomeação
-├── motor.py            # Motor de Extração de Texto (Regex & Layout Analysis)
-├── biblioteca_logs.py  # Formatação de Logs Coloridos
-├── teste_sistema.py    # Suíte de Testes Unitários/Integração
-└── Instalador_PyDF.bat # Gerenciador de Instalação (CLI)
-
 
 📝 Licença
 
