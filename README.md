@@ -1,56 +1,86 @@
-📄 PyDF Toolkit - Windows PDF Automation
+📂 PyDF Toolkit - Windows PDF Automation
+
 Uma suíte de ferramentas leve, local e automatizada para manipulação de PDFs, integrada diretamente ao Menu de Contexto do Windows.
 
-🚀 Sobre o Projeto
+📖 Sobre o Projeto
+
 O PyDF Toolkit foi desenvolvido para resolver a ineficiência de manipular documentos PDF no dia a dia corporativo. Ao invés de depender de softwares pesados (Adobe) ou ferramentas online inseguras (iLovePDF), este projeto oferece uma solução nativa, rápida e privada.
 
-O grande diferencial é a integração via Shell (Batch Scripting). O utilizador executa scripts Python complexos simplesmente clicando com o botão direito no arquivo ("Enviar Para"), sem precisar abrir terminais ou interfaces complexas.
+O diferencial é a integração via Shell (Batch Scripting), permitindo que o usuário execute scripts Python complexos simplesmente clicando com o botão direito no arquivo ("Enviar Para").
 
-🛠️ Funcionalidades
+🚀 Funcionalidades
+
 1. Fatiar (Split)
+
 Divide um arquivo PDF em páginas individuais instantaneamente.
 
-Automação: Cria pastas organizadas automaticamente.
+Criação automática de pastas organizadas.
 
-Organização: Nomenclatura sequencial (01, 02, 03...).
+Nomenclatura sequencial.
 
-<div align="center"> <img src="dividir.png" width="30%" alt="Demonstração" /> <img src="dividir%202.png" width="30%" alt="Console" /> <img src="dividir%203.png" width="30%" alt="Resultado" /> <p><em>Fluxo: Seleção > Processamento > Resultado na Pasta</em></p> </div>
+<p align="center">
+<img src="assets/dividir.png" alt="Menu de Contexto - Dividir" width="30%">
+<img src="assets/dividir 2.png" alt="Console Dividindo" width="45%">
+</p>
+<p align="center">
+<img src="assets/dividir 3.png" alt="Resultado Final" width="80%">
+</p>
 
 2. Fatiar Inteligente (Smart Split)
-Utiliza Regex e Extração de Texto para ler o conteúdo de cada página antes de salvar. Essencial para contabilidade e separar comprovativos misturados.
+
+Utiliza Regex e Extração de Texto para ler o conteúdo de cada página antes de salvar. Ideal para separar comprovantes ou notas fiscais misturados.
 
 Lógica: Se encontrar um valor monetário (ex: "1.500,00"), renomeia o arquivo com o valor. Se não, usa um contador padrão.
 
-<div align="center"> <img src="dividir%20smart.png" width="30%" alt="Menu Contexto" /> <img src="dividir%20smart%202.png" width="30%" alt="Console Log" /> <img src="dividir%20smart%203.png" width="30%" alt="Arquivos Finais" /> <p><em>Observe como os arquivos já saem nomeados com os valores detectados.</em></p> </div>
+<p align="center">
+<img src="assets/dividir smart.png" alt="Menu Smart Split" width="30%">
+<img src="assets/dividir smart 2.png" alt="Console Smart" width="45%">
+</p>
+<p align="center">
+<img src="assets/dividir smart 3.png" alt="Resultado Smart" width="80%">
+</p>
 
 3. Juntar (Merge)
-Unifica todos os PDFs de uma pasta selecionada em um único arquivo Unificados.pdf numa questão de segundos.
 
-<div align="center"> <img src="juntar.png" width="24%" alt="Seleção" /> <img src="juntar%202.png" width="24%" alt="Processo" /> <img src="juntar%203.png" width="24%" alt="Arquivo Final" /> <img src="juntar%20turbo.png" width="24%" alt="Modo Turbo" /> </div>
+Unifica todos os PDFs de uma pasta em um único arquivo Unificados.pdf ou com nome personalizado.
 
-4. Renomeação Automática (OCR Logic V4)
-O cérebro do projeto. Analisa o texto de boletos, comprovativos bancários (Banestes, BB, Nubank, etc.) e guias de impostos.
+<p align="center">
+<img src="assets/juntar.png" alt="Menu Juntar" width="30%">
+<img src="assets/juntar 2.png" alt="Console Juntar" width="45%">
+</p>
+<p align="center">
+<img src="assets/juntar 3.png" alt="Resultado Unificado" width="80%">
+</p>
+
+4. Renomeação Automática (OCR Logic)
+
+O motor principal do projeto. Analisa o texto de boletos, comprovantes PIX ou extratos para identificar o tipo de documento e renomeá-lo automaticamente com precisão contábil.
 
 Detecta padrões: PIX, BOLETO, DARF, EXTRATO.
 
-Flexibilidade: 20 opções de ordenação (Data, Favorecido, Valor, Tipo).
+Opções: Organiza por Favorecido, Data (ISO), Valor e Tipo.
 
-Inteligência: Distingue quem pagou de quem recebeu e ignora saldos para focar no valor da transação.
-
-<div align="center"> <h3>O Menu Interativo</h3> <img src="renomeara.png" width="80%" alt="Menu de Opções" /> </div>
-
-
-
-<div align="center"> <img src="renomear.png" width="45%" alt="Console Analisando" /> <img src="renomear%202.png" width="45%" alt="Arquivos Renomeados" /> <p><em>Esquerda: Console detectando dados | Direita: Arquivos organizados automaticamente</em></p> </div> <div align="center"> <img src="renomear%203.png" width="80%" alt="Detalhes" /> </div>
+<p align="center">
+<img src="assets/renomeara.png" alt="Menu Renomear" width="30%">
+<img src="assets/renomear.png" alt="Console Renomear Opções" width="45%">
+</p>
+<p align="center">
+<em>Visualização do Processo e Log Detalhado</em>
+</p>
+<p align="center">
+<img src="assets/renomear 2.png" alt="Resultado Renomeação" width="45%">
+<img src="assets/renomear 3.png" alt="Detalhe dos Arquivos" width="45%">
+</p>
 
 🏗️ Arquitetura e Tecnologias
+
 O projeto utiliza uma arquitetura híbrida para garantir a melhor UX no Windows:
 
 Core (Python): Scripts robustos usando pypdf para manipulação de bytes e re (Regex) para lógica de extração de dados.
 
-Wrapper (Batch): Scripts .bat que servem de "ponte", configurando o ambiente (UTF-8) e chamando o interpretador Python correto.
+Wrapper (Batch): Scripts .bat que servem de "ponte", configurando o ambiente (UTF-8), chamando o interpretador Python correto e gerenciando pausas de execução.
 
-Instalador (Automation): Script de auto-diagnóstico que verifica dependências (pip), cria wrappers e injeta atalhos no SendTo.
+Instalador (Automation): Um script de auto-diagnóstico que verifica dependências (pip install), cria os wrappers e injeta os atalhos na pasta SendTo do Windows.
 
 graph LR
     A[Usuário (Menu Contexto)] -->|Clica em Enviar Para| B(Wrapper .BAT)
@@ -59,34 +89,34 @@ graph LR
     C -->|Processa| E[Arquivo PDF]
     C -->|Retorna| F[Log Colorido no Terminal]
 
+
 📦 Instalação e Uso
+
 O projeto conta com um Instalador CLI Interativo.
 
-Clone o repositório.
+Clone este repositório.
 
-Coloque-o na pasta raiz de sua preferência (Ex: C:\Scripts).
+Coloque-o na sua pasta mãe do Disco Local principal. Ex: C:\Scripts\PyDF-Toolkit
 
 Execute o arquivo Instalador_PyDF.bat.
 
 Escolha a opção [3] INSTALAR / REPARAR.
 
-O script verificará se o Python está instalado, instalará a dependência pypdf automaticamente e criará os atalhos.
+O script verificará se o Python está instalado, instalará a dependência pypdf automaticamente e criará os atalhos no menu de contexto.
 
-<div align="center"> <img src="instalador.png" width="70%" alt="Instalador CLI" /> </div>
+Como usar:
 
-Como usar no dia a dia:
-Clique com o botão direito em qualquer PDF (ou pasta).
+Clique com o botão direito em qualquer PDF (ou pasta, dependendo da função).
 
-Vá em Enviar Para > 01 - DIVIDIR (PyDF) (ou outra opção).
+Vá em Enviar Para e escolha a função desejada (ex: 01 - DIVIDIR (PyDF)).
 
 O script rodará e fechará automaticamente após o sucesso.
 
-<div align="center"> <img src="pasta.png" width="60%" alt="Menu de Contexto Windows" /> </div>
+🧪 Testes Automatizados
 
-✅ Testes Automatizados
 Qualidade de código é prioridade. O projeto inclui um sistema de auto-diagnóstico (teste_sistema.py) que:
 
-Cria PDFs "Mock" (falsos) para teste.
+Cria PDFs "Mock" (falsos) para teste em tempo real.
 
 Executa todas as funções do sistema em ambiente isolado.
 
@@ -97,17 +127,27 @@ Limpa o ambiente após o teste.
 Para rodar os testes, execute o instalador e escolha a opção [4] TESTE DE SISTEMA.
 
 📂 Estrutura do Projeto
+
 /
 ├── dividir.py          # Lógica de Split
 ├── dividir_smart.py    # Lógica de Split com leitura de conteúdo
 ├── juntar.py           # Lógica de Merge
 ├── renomear.py         # Lógica de Renomeação
-├── motor.py            # Motor de Extração de Texto (Regex + Layout Analysis)
+├── motor.py            # Motor de Extração de Texto (Regex & Layout Analysis)
 ├── biblioteca_logs.py  # Formatação de Logs Coloridos
 ├── teste_sistema.py    # Suíte de Testes Unitários/Integração
 └── Instalador_PyDF.bat # Gerenciador de Instalação (CLI)
 
-📜 Licença
+
+📝 Licença
+
 Este projeto está sob a licença MIT - sinta-se livre para usar e modificar.
 
-Desenvolvido por Pedro Tavares Estudante de Ciência da Computação & Desenvolvedor Full Cycle em formação.
+<p align="center">
+<strong>Desenvolvido por Pedro Tavares</strong>
+
+
+
+
+<em>Estudante de Ciência da Computação & Desenvolvedor Full Cycle em formação.</em>
+</p>
