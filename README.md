@@ -98,13 +98,32 @@ A organização dos arquivos foi pensada para facilitar a manutenção, separand
 
 O projeto conta com um Instalador CLI Interativo.
 
-Clone este repositório.
+Opção A: Download Direto (Sem Git)
 
-Coloque-o na sua pasta mãe do Disco Local principal. Ex: C:\Scripts\PyDF-Toolkit
+Clique no botão [Download ZIP] no topo desta página.
 
-Execute o arquivo Instalador_PyDF.bat.
+Extraia o arquivo .zip na sua pasta de scripts (Ex: C:\Scripts\PyDF-Toolkit).
 
-Escolha a opção [3] INSTALAR / REPARAR.
+Execute o Instalador_PyDF.bat.
+
+Opção B: Via Git (Recomendado para Devs)
+
+Abra o terminal na pasta desejada.
+
+Clone o repositório:
+
+git clone [https://github.com/pedro-tavares-dev/pydf-toolkit.git](https://github.com/pedro-tavares-dev/pydf-toolkit.git)
+
+
+Entre na pasta e execute o instalador:
+
+cd pydf-toolkit
+Instalador_PyDF.bat
+
+
+Finalizando a Instalação
+
+No menu do instalador, escolha a opção [3] INSTALAR / REPARAR.
 
 O script verificará se o Python está instalado, instalará a dependência pypdf automaticamente e criará os atalhos no menu de contexto.
 
