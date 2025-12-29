@@ -98,23 +98,6 @@ A organização dos arquivos foi pensada para facilitar a manutenção, separand
 
 O projeto conta com um Instalador CLI Interativo.
 
-Opção A: Download Direto (Sem Git)
-
-Clique no botão [Download ZIP] no topo desta página.
-
-Extraia o arquivo .zip na sua pasta de scripts (Ex: C:\Scripts\PyDF-Toolkit).
-
-Execute o Instalador_PyDF.bat.
-
-Opção B: Via Git (Recomendado para Devs)
-
-Abra o terminal na pasta desejada.
-
-Clone o repositório:
-
-git clone [https://github.com/pedro-tavares-dev/pydf-toolkit.git](https://github.com/pedro-tavares-dev/pydf-toolkit.git)
-
-
 Entre na pasta e execute o instalador:
 
 cd pydf-toolkit
